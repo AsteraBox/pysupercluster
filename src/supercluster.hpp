@@ -26,6 +26,7 @@ public:
     size_t id;
     int zoom;
     int expansionZoom;
+    size_t parentId;
 };
 
 
