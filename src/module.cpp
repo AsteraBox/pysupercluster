@@ -116,7 +116,7 @@ SuperCluster_getClusters(SuperClusterObject *self, PyObject *args, PyObject *kwa
 
     PyObject *countKey = PyUnicode_FromString("count");
     PyObject *expansionZoomKey = PyUnicode_FromString("expansion_zoom");
-    PyObject *idKey = PyUnicode_FromString("id");
+    PyObject *idKey = PyUnicode_FromString("cpt_id");
     PyObject *latitudeKey = PyUnicode_FromString("latitude");
     PyObject *longitudeKey = PyUnicode_FromString("longitude");
     PyObject *parentIdKey = PyUnicode_FromString("parent_id"); 
@@ -151,9 +151,13 @@ SuperCluster_getClusters(SuperClusterObject *self, PyObject *args, PyObject *kwa
         PyDict_SetItem(dict, longitudeKey, o);
         Py_DECREF(o);
 
-        o = PyLong_FromSize_t(cluster->parentId);
-        PyDict_SetItem(dict, parentIdKey, o);
-        Py_DECREF(o);
+        if (cluster->parentId > 0) {
+            o = PyLong_FromSize_t(cluster->parentId);
+            PyDict_SetItem(dict, parentIdKey, o);
+            Py_DECREF(o);
+        } else {
+            PyDict_SetItem(dict, parentIdKey, Py_None);
+        }
 
         PyList_SET_ITEM(list, i, dict);
     }

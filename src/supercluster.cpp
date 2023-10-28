@@ -59,7 +59,7 @@ SuperCluster::SuperCluster(const std::vector<Point> &points, int _minZoom, int _
     std::vector<Cluster*> clusters;
     clusters.reserve(points.size());
     for (size_t i = 0; i < points.size(); ++i)
-        clusters.push_back(new Cluster(points[i], 1, i, -1));
+        clusters.push_back(new Cluster(points[i], 1, i, maxZoom + 1));
     all_clusters = clusters;
 
     for (int z = maxZoom; z >= minZoom; --z) {
@@ -117,6 +117,7 @@ std::vector<Cluster*> SuperCluster::cluster(const std::vector<Cluster*> &points,
             all_clusters.push_back(cluster);
             p -> parentId = newClusterId;
         } else {
+            p -> expansionZoom = zoom;
             clusters.push_back(p);
         }
     }
@@ -127,6 +128,10 @@ std::vector<Cluster*> SuperCluster::cluster(const std::vector<Cluster*> &points,
 
 std::vector<Cluster*> SuperCluster::getClusters(const Point &min_p, const Point &max_p, int zoom) const
 {
+    if (zoom == -1) {
+        return all_clusters;
+    } 
+
     const int z = std::max(minZoom, std::min(zoom, maxZoom + 1));
     std::vector<Cluster*> clusters;
 
