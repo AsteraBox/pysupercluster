@@ -116,6 +116,7 @@ SuperCluster_getClusters(SuperClusterObject *self, PyObject *args, PyObject *kwa
 
     PyObject *countKey = PyUnicode_FromString("count");
     PyObject *expansionZoomKey = PyUnicode_FromString("expansion_zoom");
+    PyObject *mergeZoomKey = PyUnicode_FromString("merge_zoom");
     PyObject *idKey = PyUnicode_FromString("cpt_id");
     PyObject *latitudeKey = PyUnicode_FromString("latitude");
     PyObject *longitudeKey = PyUnicode_FromString("longitude");
@@ -137,6 +138,14 @@ SuperCluster_getClusters(SuperClusterObject *self, PyObject *args, PyObject *kwa
             Py_DECREF(o);
         } else {
             PyDict_SetItem(dict, expansionZoomKey, Py_None);
+        }
+
+        if (cluster->zoom >= 0) {
+            o = PyLong_FromSize_t(cluster->zoom);
+            PyDict_SetItem(dict, mergeZoomKey, o);
+            Py_DECREF(o);
+        } else {
+            PyDict_SetItem(dict, mergeZoomKey, Py_None);
         }
 
         o = PyLong_FromSize_t(cluster->id);
@@ -164,6 +173,7 @@ SuperCluster_getClusters(SuperClusterObject *self, PyObject *args, PyObject *kwa
 
     Py_DECREF(countKey);
     Py_DECREF(expansionZoomKey);
+    Py_DECREF(mergeZoomKey);
     Py_DECREF(idKey);
     Py_DECREF(latitudeKey);
     Py_DECREF(longitudeKey);
