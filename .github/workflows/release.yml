@@ -1,0 +1,29 @@
+name: Build and release library as an artifact
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release Tag'
+        required: true
+      publish:
+        description: 'Publish: If want ignore'
+        required: false
+      artifact-pack:
+        description: 'artifact-pack: If want ignore'
+        required: false
+
+jobs:
+  build-packages:
+    runs-on: 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build library
+        run: |
+          for file in docker/Dockerfile-build.*
+          do
+          docker run --rm $(docker build -q -f docker/"$file")
+
+
+          
