@@ -23,7 +23,8 @@ jobs:
         run: |
           for file in docker/Dockerfile-build.*
           do
-          docker run --rm $(docker build -q -f docker/"$file")
+          TARGET=$(echo "$file" | sed 's/Dockerfile-build.//')
+          docker run --rm --mount  $(docker build -q -f docker/"$file")
 
 
           
