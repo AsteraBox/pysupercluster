@@ -1,4 +1,4 @@
-name: Build and release library as an artifact
+name: Build and release library for certain environments
 
 on:
   workflow_dispatch:
@@ -6,25 +6,35 @@ on:
       tag:
         description: 'Release Tag'
         required: true
-      publish:
-        description: 'Publish: If want ignore'
-        required: false
-      artifact-pack:
-        description: 'artifact-pack: If want ignore'
-        required: false
 
 jobs:
   build-packages:
-    runs-on: 
+    runs-on: []
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Build library
+      - name: Build library for all specified envs
         run: |
-          for file in docker/Dockerfile-build.*
+          for file in docker/build-dockerfiles/Dockerfile-build.*
           do
-          TARGET=$(echo "$file" | sed 's/Dockerfile-build.//')
-          docker run --rm --mount  $(docker build -q -f docker/"$file")
-
-
-          
+          TARGET=$(echo "$file" | sed 's/docker\/build-dockerfiles\/Dockerfile-build.//')
+          echo "Building image for $TARGET..."
+          IMAGE=$(docker build -q -f "$file" .)
+          echo "Building whl for $TARGET..."
+          docker run --rm --mount type=bind,source=./c_dist/$TARGET,target=/app/dist $IMAGE
+          docker image rm $IMAGE
+          done
+      - name: Prepare archives
+        run: |
+          mkdir deploy
+          for dir in c_dist/*
+          do
+          ARCHIVE_NAME=$(echo "$dir" | sed 's/c_dist\///')
+          FILE_NAME=$(ls "$dir")
+          tar czvf deploy/$ARCHIVE_NAME.tar.gz -C "$dir" $FILE_NAME
+          done
+      - name: Release
+        run: |
+          curl -Lo - https://github.com/tcnksm/ghr/releases/download/v0.16.2/ghr_v0.16.2_linux_amd64.tar.gz | tar xzv
+          mv ghr*linux_amd64/ghr .
+          ./ghr -t "${{ github.token }}" -n "${{ github.event.inputs.tag }}" "${{ github.event.inputs.tag }}" deployment
