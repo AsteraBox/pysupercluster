@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-packages:
-    runs-on: []
+    runs-on: [self-hosted, smr-dev]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
